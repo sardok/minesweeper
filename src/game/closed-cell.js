@@ -9,15 +9,20 @@ import { getVersion } from './utils';
 
 function ClosedCell(props) {
     const { row, col, marked } = props;
-    const [_, send] = useContext(MachineContext);
+    const [state, send] = useContext(MachineContext);
+    const { gameOver } = state.context;
 
     const onClick = () => {
-        send('OPEN', { row, col });
+        if (!gameOver) {
+            send('OPEN', { row, col });
+        }
     }
 
     const rightClick = (evt) => {
         evt.preventDefault();
-        send('MARK', { row, col });
+        if (!gameOver) {
+            send('MARK', { row, col });
+        }
     }
 
     const ver = getVersion(row, col);
