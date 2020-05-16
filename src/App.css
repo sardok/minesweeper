@@ -1,6 +1,7 @@
 body {
   display: flex;
   flex: 1;
+  flex-grow: 1;
   justify-content: center;
   align-items: center;
   background-color: grey;

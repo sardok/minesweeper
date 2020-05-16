@@ -5,9 +5,7 @@ import Game from './game';
 
 function App() {
   return (
-      <div>
-        <Game size={5} />
-      </div>
+      <Game size={5} />
   );
 }
 

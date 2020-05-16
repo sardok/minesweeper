@@ -4,6 +4,7 @@ import { useMachine } from '@xstate/react';
 
 import { statechart } from './statechart';
 
+import Header from './header';
 import Cell from './cell';
 
 import './game.css';
@@ -34,7 +35,10 @@ function Game(props) {
     return (
         <MachineContext.Provider value={machine}>
             <div className="game">
-                {rows}
+                <Header />
+                <div className="board">
+                    {rows}
+                </div>
             </div>
         </MachineContext.Provider>
     );

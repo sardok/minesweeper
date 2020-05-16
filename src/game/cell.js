@@ -5,7 +5,7 @@ import { makeStateKey } from './statechart';
 import { MachineContext } from './index';
 
 import OpenCell from './open-cell';
-import CloseCell from './close-cell';
+import ClosedCell from './closed-cell';
 import BombCell from './bomb-cell';
 import EmptyCell from './empty-cell';
 
@@ -22,9 +22,11 @@ function Cell(props) {
         case state.matches({ [key]: 'open' }):
             return <OpenCell row={row} col={col} />
         case state.matches({ [key]: 'close' }):
-            return <CloseCell row={row} col={col} />
+            return <ClosedCell row={row} col={col} />
+        case state.matches({ [key]: 'marked' }):
+            return <ClosedCell row={row} col={col} marked={true} />
         case state.matches({ [key]: 'bomb' }):
-            return <BombCell />;
+            return <BombCell row={row} col={col} />;
         case state.matches({ [key]: 'empty' }):
             return <EmptyCell row={row} col={col} />;
         default:

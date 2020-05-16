@@ -1,4 +1,4 @@
-import { Machine, send } from 'xstate';
+import { Machine, send, assign } from 'xstate';
 
 import { makeField } from './utils';
 
@@ -31,6 +31,15 @@ const targetAndContentMatches = (context, event, condMeta) => {
 const isAdjAndContentMatches = (context, event, condMeta) => {
     return isAdj(context, event, condMeta) &&
         contentMatches(context, event, condMeta);
+}
+
+const markerLeft = (context) => context.markerCount > 0;
+
+const targetMatchesAndMarkerLeft = (context, event, condMeta) => {
+    const res = targetMatches(context, event, condMeta) &&
+        markerLeft(context);
+
+    return res;
 }
 
 function makeCellState(id, row, col, content) {
@@ -81,16 +90,26 @@ function makeCellState(id, row, col, content) {
                             },
                             target: 'empty',
                         }
-                    ]
+                    ],
+                    MARK: {
+                        cond: {
+                            type: 'targetMatchesAndMarkerLeft',
+                            row, col
+                        },
+                        target: 'marked'
+                    },
                 },
+            },
+            marked: {
+                entry: 'decMarker'
             },
             open: {
             },
             bomb: {
-                entry: send('OPEN_BOMBS'),
+                entry: [send('OPEN_BOMBS'), 'setGameOver'],
             },
             empty: {
-                entry: send({ type: 'OPEN_ADJ_EMPTY', row, col })
+                entry: send({ type: 'OPEN_ADJ_EMPTY', row, col }),
             },
         },
         meta: { content },
@@ -102,11 +121,16 @@ export const makeStateKey = (row, col ) => `${row}_${col}`;
 export function makeStatechart(size) {
     const states = {}
     const field = makeField(size, size);
+    let bombCount = 0;
     
     for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
             const stateKey = makeStateKey(i, j);
             const content = field[i][j];
+            if (content === 'bomb') {
+                bombCount++;
+            }
+
             states[stateKey] = makeCellState(stateKey, i, j, content);
         }
     }
@@ -116,6 +140,10 @@ export function makeStatechart(size) {
             id: 'gameStatechart',
             type: 'parallel',
             states: states,
+            context: {
+                markerCount: bombCount,
+                gameOver: false,
+            }
         },
         {
             guards: { 
@@ -123,6 +151,13 @@ export function makeStatechart(size) {
                 targetMatches,
                 targetAndContentMatches,
                 isAdjAndContentMatches,
+                targetMatchesAndMarkerLeft,
+            },
+            actions: {
+                setGameOver: assign({ gameOver: true }),
+                decMarker: assign({
+                    markerCount: (context) => context.markerCount - 1,
+                }),
             }
         });
 }

@@ -62,3 +62,6 @@ export function makeField(row, col) {
 
     return field;
 }
+
+
+export const getVersion = (row, col) => (row % 2 + col % 2) % 2 + 1;

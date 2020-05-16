@@ -4,6 +4,8 @@ import { makeStateKey } from './statechart';
 
 import { MachineContext } from './index';
 
+import { getVersion } from './utils';
+
 import './game.css'
 
 function OpenCell(props) {
@@ -12,9 +14,10 @@ function OpenCell(props) {
     const key = makeStateKey(row, col);
     const [state] = useContext(MachineContext);
     const { content }= state.meta[key];
+    const ver = getVersion(row, col);
 
     return (
-        <div className="cell">
+        <div className={`cell cell_open${ver}`}>
             {content}
         </div>
     );
